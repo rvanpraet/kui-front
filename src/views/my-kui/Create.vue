@@ -48,25 +48,15 @@
                             <div class="columns is-multiline">
                                 <!-- v-for each design coming from backend -->
                                 <div
+                                    v-for="design in designs"
+                                    v-bind:key="design.id"
                                     class="column is-one-third-desktop is-half-tablet"
                                 >
-                                    <DesignCard></DesignCard>
+                                    <DesignCard
+                                        v-bind:imgUrl="design.imageUrl"
+                                    ></DesignCard>
                                 </div>
-                                <div
-                                    class="column is-one-third-desktop is-half-tablet"
-                                >
-                                    <DesignCard></DesignCard>
-                                </div>
-                                <div
-                                    class="column is-one-third-desktop is-half-tablet"
-                                >
-                                    <DesignCard></DesignCard>
-                                </div>
-                                <div
-                                    class="column is-one-third-desktop is-half-tablet"
-                                >
-                                    <DesignCard></DesignCard>
-                                </div>
+
                                 <!--  -->
                             </div>
                             <!-- If selected or created, show -->
@@ -119,6 +109,20 @@ export default {
     components: {
         KSideBar,
         DesignCard
+    },
+
+    data() {
+        return {
+            designs: []
+        };
+    },
+
+    created() {
+        fetch("/api/userId/designs")
+            .then(res => res.json())
+            .then(json => {
+                this.designs = json.designs;
+            });
     }
 };
 </script>

@@ -5,19 +5,29 @@ export function makeServer({ environment = "development" } = {}) {
         environment,
 
         models: {
-            todo: Model
+            design: Model
         },
 
         seeds(server) {
-            server.create("todo", { content: "Learn Mirage JS" });
-            server.create("todo", { content: "Integrate With Vue.js" });
+            server.create("design", {
+                imageUrl:
+                    "https://dummyimage.com/600x600/000000/fff&text=Design+One"
+            });
+            server.create("design", {
+                imageUrl:
+                    "https://dummyimage.com/600x600/000000/fff&text=Design+Two"
+            });
+            server.create("design", {
+                imageUrl:
+                    "https://dummyimage.com/600x600/000000/fff&text=Design+Three"
+            });
         },
 
         routes() {
             this.namespace = "api";
 
-            this.get("/todos", schema => {
-                return schema.todos.all();
+            this.get("/userId/designs", schema => {
+                return schema.designs.all();
             });
         }
     });
