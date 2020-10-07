@@ -21,12 +21,23 @@ export function makeServer({ environment = "development" } = {}) {
                 imageUrl:
                     "https://dummyimage.com/600x600/000000/fff&text=Design+Three"
             });
+            server.create("design", {
+                imageUrl:
+                    "https://dummyimage.com/600x600/000000/fff&text=Design+Four"
+            });
+            server.create("design", {
+                imageUrl:
+                    "https://dummyimage.com/600x600/000000/fff&text=Design+Five"
+            });
         },
 
         routes() {
-            this.namespace = "api";
+            this.passthrough("localhost:8080/public");
+            this.passthrough();
 
-            this.get("/userId/designs", schema => {
+            // this.namespace = "api";
+
+            this.get("api/userId/designs", schema => {
                 return schema.designs.all();
             });
         }

@@ -2,7 +2,7 @@
     <div>
         <div class="side-menu">
             <aside>
-                <KSideBar></KSideBar>
+                <k-side-bar></k-side-bar>
             </aside>
         </div>
         <div class="main-container">
@@ -25,14 +25,14 @@
             </section>
             <section>
                 <div class="container">
-                    <div class="colums is-multiline is-desktop">
+                    <div class="columns is-multiline is-desktop">
                         <div
                             class="column is-one-quarter-fullhd is-full-desktop"
                         >
                             <h3 class="title is-3">1. Your Design</h3>
                             <!-- If none selected, create new-->
                             <div class="p-1">
-                                <p class="mb-2">
+                                <p class="mb-3">
                                     Select a recent design to use or edit, or
                                     start from scratch with a new design.
                                 </p>
@@ -52,9 +52,9 @@
                                     v-bind:key="design.id"
                                     class="column is-one-third-desktop is-half-tablet"
                                 >
-                                    <DesignCard
+                                    <design-card
                                         v-bind:imgUrl="design.imageUrl"
-                                    ></DesignCard>
+                                    ></design-card>
                                 </div>
 
                                 <!--  -->
@@ -69,30 +69,62 @@
             </section>
             <section>
                 <div class="container">
-                    <div class="colums is-multiline is-desktop">
+                    <div class="columns is-multiline is-desktop">
+                        <!-- Intro / Buttons -->
                         <div
                             class="column is-one-quarter-fullhd is-full-desktop"
                         >
                             <h3 class="title is-3">2. Your Audio</h3>
                             <!-- If none selected, create new-->
                             <div class="p-1">
-                                <p class="mb-2">
+                                <p class="mb-3">
                                     Upload audio you've already recorded, or
                                     record something on the spot.
                                 </p>
-                                <b-button class="mb-2">Upload File</b-button>
-                                <b-button type="is-text"
+                                <b-button class="mb-3">
+                                    Upload {{ showTrimmer ? "New" : "" }} File
+                                    <input
+                                        id="upload-file"
+                                        type="file"
+                                        @change="handleFileChange"
+                                    />
+                                </b-button>
+                                <b-button
+                                    type="is-text"
+                                    v-if="!showRecorder"
+                                    v-on:click="toggleRecorder"
                                     >Record something yourself!</b-button
                                 >
+                                <b-button
+                                    type="is-text"
+                                    v-if="showRecorder"
+                                    v-on:click="toggleRecorder"
+                                    >Hide Recorder</b-button
+                                >
                             </div>
-                            <!-- If Selected -->
-                            <div></div>
                         </div>
+                        <!-- End Intro / Buttons -->
+                        <!-- Recorder -->
                         <div
+                            v-if="showRecorder"
                             class="column is-three-quarters-fullhd is-full-desktop"
                         >
-                            <!-- Open recorder -->
+                            <k-audio-recorder
+                                v-on:recAudio="handleAudioRec"
+                            ></k-audio-recorder>
                         </div>
+                        <!-- End Recorder -->
+
+                        <!-- Trimmer -->
+                        <div
+                            v-if="!showRecorder && showTrimmer"
+                            class="column is-three-quarters-fullhd is-full-desktop"
+                        >
+                            <k-audio-trimmer
+                                v-bind:audioBlob="fileBlob"
+                            ></k-audio-trimmer>
+                        </div>
+                        <!-- Close Trimmer -->
                     </div>
                 </div>
             </section>
@@ -103,18 +135,68 @@
 <script>
 import KSideBar from "../../components/KSideBar";
 import DesignCard from "../../components/cards/DesignCard";
+import KAudioRecorder from "../../components/audio/KAudioRecorder";
+import KAudioTrimmer from "../../components/audio/KAudioTrimmer";
 
 export default {
     name: "Create",
     components: {
-        KSideBar,
-        DesignCard
+        kSideBar: KSideBar,
+        designCard: DesignCard,
+        kAudioRecorder: KAudioRecorder,
+        kAudioTrimmer: KAudioTrimmer
     },
 
     data() {
         return {
-            designs: []
+            designs: [],
+            fileBlob: null,
+            showRecorder: false,
+            showTrimmer: false
         };
+    },
+
+    methods: {
+        handleAudioRec(recAudioBlob) {
+            console.log("IN AUDIO REC HANDLER", recAudioBlob);
+            if (recAudioBlob) {
+                this.handleFileChange(null);
+                this.fileBlob = recAudioBlob;
+                this.showRecorder = false;
+                this.showTrimmer = true;
+            }
+        },
+        handleFileChange(e) {
+            const file = e ? e.target.files[0] : null;
+            this.showTrimmer = false;
+            console.log("IN FILE HANDLER", file);
+            if (file) {
+                const reader = new FileReader();
+                // Read File as an ArrayBuffer
+                reader.readAsArrayBuffer(file);
+
+                reader.onload = evt => {
+                    // Create a Blob providing as first argument a typed array with the file buffer
+                    this.fileBlob = new window.Blob([
+                        new Uint8Array(evt.target.result)
+                    ]);
+                    this.showRecorder = false;
+                    this.showTrimmer = true;
+                };
+
+                reader.onerror = evt => {
+                    console.error("An error ocurred reading the file: ", evt);
+                };
+            }
+        },
+        toggleRecorder() {
+            this.showRecorder = !this.showRecorder;
+            this.showTrimmer = false;
+        },
+        toggleTrimmer() {
+            this.showTrimmer = !this.showTrimmer;
+            this.showRecorder = false;
+        }
     },
 
     created() {
@@ -124,6 +206,11 @@ export default {
                 this.designs = json.designs;
             });
     }
+    // watch: {
+    //     fileBlob(newBlob) {
+    //         console.log(newBlob);
+    //     }
+    // }
 };
 </script>
 
@@ -146,6 +233,14 @@ export default {
 
 section {
     padding: 0 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 5rem;
+}
+
+#upload-file {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    width: 100%;
 }
 </style>

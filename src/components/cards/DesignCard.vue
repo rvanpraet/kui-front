@@ -1,9 +1,11 @@
 <template>
     <div class="card is-hover-shadow">
         <div class="card-image">
-            <figure class="image is-square">
-                <img :src="imgUrl" alt="Placeholder image" />
-            </figure>
+            <div class="scale-wrapper">
+                <figure class="image is-square">
+                    <img :src="imgUrl" alt="Placeholder image" />
+                </figure>
+            </div>
         </div>
         <div class="card-footer">
             <a href="#" class="card-footer-item">Select Design</a>
@@ -37,8 +39,19 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .tag {
     cursor: pointer;
+}
+.card-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .scale-wrapper {
+        padding: 5%;
+        width: 80%;
+        height: 80%;
+    }
 }
 </style>
