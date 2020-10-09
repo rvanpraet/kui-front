@@ -121,6 +121,7 @@
                             class="column is-three-quarters-fullhd is-full-desktop"
                         >
                             <k-audio-trimmer
+                                v-bind:reset="reset"
                                 v-bind:audioBlob="fileBlob"
                             ></k-audio-trimmer>
                         </div>
@@ -189,6 +190,7 @@ export default {
                 };
             }
         },
+        resetAudioPlayer() {},
         toggleRecorder() {
             this.showRecorder = !this.showRecorder;
             this.showTrimmer = false;
@@ -237,10 +239,12 @@ section {
 }
 
 #upload-file {
+    cursor: pointer;
     position: absolute;
     top: 0;
     left: 0;
     opacity: 0;
     width: 100%;
+    height: 100%;
 }
 </style>

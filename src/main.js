@@ -3,13 +3,15 @@ import App from "./App.vue";
 import Buefy from "buefy";
 import "buefy/dist/buefy.css";
 import router from "./router";
-
+// import * as moment from "moment";
 import { makeServer } from "./server";
+
 if (process.env.NODE_ENV === "development") {
     makeServer();
 }
 
 Vue.use(Buefy);
+
 Vue.config.productionTip = false;
 
 new Vue({

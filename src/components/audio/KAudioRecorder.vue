@@ -39,5 +39,13 @@ export default {
 <style lang="scss">
 .ar {
     margin: 0px auto;
+
+    .ar-player {
+        display: none;
+    }
+
+    .ar-records {
+        display: none;
+    }
 }
 </style>

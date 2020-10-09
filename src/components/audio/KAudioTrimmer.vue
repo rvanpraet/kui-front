@@ -1,15 +1,15 @@
 <template>
     <div class="container">
-        <div class="waveform-wrapper">
+        <div class="waveform-wrapper mb-5">
             <!-- Waveform -->
-            <div id="waveform"></div>
+            <div id="waveform" @mousedown="onWaveMousedown"></div>
 
             <!-- Sliders -->
-            <div class="audio-slider">
+            <!-- <div class="audio-slider">
                 <b-field>
                     <b-slider
-                        v-model="sliderNumbers"
                         type="is-danger"
+                        v-model="sliderNumbers"
                         :min="0"
                         :max="100"
                         :step="1"
@@ -17,18 +17,26 @@
                     >
                     </b-slider>
                 </b-field>
-            </div>
+            </div> -->
         </div>
 
         <!-- Controls -->
         <div class="controls-wrapper">
-            <k-audio-trimmer-controls></k-audio-trimmer-controls>
+            <k-audio-trimmer-controls
+                :value="region"
+                @input="handleTimeChange"
+                @playPause="playPause"
+                @restart="restart"
+                @zoomOut="zoomOut"
+                @zoomIn="zoomIn"
+            ></k-audio-trimmer-controls>
         </div>
     </div>
 </template>
 
 <script>
 import WaveSurfer from "wavesurfer.js";
+import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.js";
 import KAudioTrimmerControls from "./KAudioTrimmerControls";
 
 export default {
@@ -37,8 +45,7 @@ export default {
         kAudioTrimmerControls: KAudioTrimmerControls
     },
     props: {
-        audioBlob: window.Blob,
-        reset: Boolean
+        audioBlob: window.Blob
     },
     created() {
         this.blob = this.audioBlob;
@@ -46,31 +53,83 @@ export default {
     data() {
         return {
             blob: this.audioBlob,
-            sliderNumbers: [0, 100]
+            region: {
+                start: "",
+                end: ""
+            },
+            waveRegion: null
         };
     },
     mounted() {
         this.wavesurfer = WaveSurfer.create({
-            container: "#waveform"
-            // barWidth: 2,
-            // barHeight: 1
-            // plugins: [
-            //     WaveSurfer.cursor.create({
-            //         showTime: true,
-            //         opacity: 1,
-            //         customShowTimeStyle: {
-            //             "background-color": "#000",
-            //             color: "#fff",
-            //             padding: "2px",
-            //             "font-size": "10px"
-            //         }
-            //     })
-            // ]
+            container: "#waveform",
+            cursorColor: "#f14668",
+            plugins: [
+                RegionsPlugin.create({
+                    waveColor: "blue",
+                    loop: true
+                })
+            ],
+            waveColor: "#555"
         });
         this.wavesurfer.loadBlob(this.blob);
         this.wavesurfer.on("ready", () => {
-            this.wavesurfer.play();
+            this.wavesurfer.enableDragSelection({});
         });
+        this.wavesurfer.on("region-created", region => {
+            this.handleRegionChange(region);
+        });
+        this.wavesurfer.on("region-updated", region => {
+            this.handleRegionChange(region);
+        });
+    },
+    methods: {
+        handleRegionChange(region) {
+            this.waveRegion = region;
+            this.region.start = this.parseMinSecNum(region.start);
+            this.region.end = this.parseMinSecNum(region.end);
+        },
+        handleTimeChange(newVal) {
+            const newObject = JSON.parse(JSON.stringify(newVal));
+            newObject.start = this.parseMinSecStr(newObject.start);
+            newObject.end = this.parseMinSecStr(newObject.end);
+            this.wavesurfer.clearRegions();
+            this.wavesurfer.addRegion({
+                start: newObject.start,
+                end: newObject.end
+            });
+        },
+        onWaveMousedown() {
+            this.wavesurfer.clearRegions();
+        },
+        parseMinSecNum(val) {
+            const addLeadZero = str => {
+                str.length === 1 ? (str = "0".concat(str)) : str;
+                return str;
+            };
+            val = Math.floor(val);
+            return addLeadZero(Math.floor(val / 60).toString()).concat(
+                ":",
+                addLeadZero((val % 60).toString())
+            );
+        },
+        parseMinSecStr(val) {
+            const temp = val.split(":");
+            return parseInt(temp[0]) * 60 + parseInt(temp[1]);
+        },
+        playPause() {
+            this.wavesurfer.playPause();
+        },
+        restart() {
+            this.wavesurfer.stop();
+            this.wavesurfer.play(this.waveRegion.start, this.waveRegion.end);
+        },
+        zoomIn(zoomVal) {
+            this.wavesurfer.zoom(zoomVal);
+        },
+        zoomOut(zoomVal) {
+            this.wavesurfer.zoom(zoomVal);
+        }
     },
     beforeDestroy() {
         this.wavesurfer.destroy();
@@ -90,38 +149,25 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .waveform-wrapper {
     position: relative;
 
-    .audio-slider {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+    #waveform {
+        z-index: 2;
+    }
 
-        .b-slider {
-            margin: 0;
+    .wavesurfer-handle {
+        width: 0.4em !important;
+        background-color: white !important;
+        border: 1px solid grey;
+        border-radius: 4px;
+        opacity: 1 !important;
+    }
 
-            .b-slider-track {
-                background: transparent;
-                height: 8em;
-
-                .b-slider-fill {
-                    opacity: 0.25;
-                }
-
-                .b-slider-thumb-wrapper {
-                    z-index: 5;
-                }
-            }
-
-            .b-slider-thumb {
-                height: 100%;
-                width: 0.5rem;
-            }
-        }
+    .wavesurfer-region {
+        background-color: #ffc1ce !important;
+        opacity: 0.4;
     }
 }
 </style>

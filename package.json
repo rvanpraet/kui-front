@@ -9,9 +9,12 @@
     },
     "dependencies": {
         "buefy": "^0.9.3",
+        "cleave.js": "^1.6.0",
         "core-js": "^3.6.5",
         "vue": "^2.6.11",
         "vue-audio-recorder": "^3.0.1",
+        "vue-moment": "^4.1.0",
+        "vue-r-mask": "^1.2.3",
         "vue-router": "^3.2.0",
         "wavesurfer.js": "^4.1.1"
     },
