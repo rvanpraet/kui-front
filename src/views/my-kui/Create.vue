@@ -129,6 +129,19 @@
                     </div>
                 </div>
             </section>
+            <section>
+                <div class="container">
+                    <div class="columns is-multiline is-desktop">
+                        <!-- Intro / Buttons -->
+                        <div class="column is-full-desktop">
+                            <h3 class="title is-3">3. Your Image</h3>
+                            <k-image-editor></k-image-editor>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
         </div>
     </div>
 </template>
@@ -138,6 +151,7 @@ import KSideBar from "../../components/KSideBar";
 import DesignCard from "../../components/cards/DesignCard";
 import KAudioRecorder from "../../components/audio/KAudioRecorder";
 import KAudioTrimmer from "../../components/audio/KAudioTrimmer";
+import KImageEditor from "../../components/image/KImageEditor"
 
 export default {
     name: "Create",
@@ -145,7 +159,8 @@ export default {
         kSideBar: KSideBar,
         designCard: DesignCard,
         kAudioRecorder: KAudioRecorder,
-        kAudioTrimmer: KAudioTrimmer
+        kAudioTrimmer: KAudioTrimmer,
+        kImageEditor: KImageEditor
     },
 
     data() {
