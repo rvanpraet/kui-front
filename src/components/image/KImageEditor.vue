@@ -1,5 +1,5 @@
 <template>
-    <div class="canvas">
+    <div class="canvas" ref="canvas">
         <div class="resize-container" ref="resizeContainer">
             <span class="resize-handle resize-handle-nw" @mousedown="startResize"></span>
             <span class="resize-handle resize-handle-ne" @mousedown="startResize"></span>
@@ -22,10 +22,8 @@ export default {
             origSrc: new Image(),
             eventState: {},
             constrain: false,
-            minWidth: 6,
-            minHeight: 6,
-            maxWidth: 800000,
-            maxHeight: 900000,
+            minWidth: 10,
+            minHeight: 10,
             resizeCanvas: document.createElement('canvas'),
         };
     },
@@ -87,7 +85,7 @@ export default {
             if(this.constrain || e.shiftKey){
                 height = width / this.origSrc.width * this.origSrc.height;
             }
-            if(width > this.minWidth && height > this.minHeight && width < this.maxWidth && height < this.maxHeight) {
+            if(width > this.minWidth && height > this.minHeight) { // && width < this.$refs.canvas.clientWidth && height < this.$refs.canvas.clientHeight) {
                 this.resizeImage(width, height);
                 // Without this Firefox will not re-calculate the the image dimensions until drag end
                 this.$refs.resizeContainer.style.top = top + "px";
@@ -100,6 +98,7 @@ export default {
             this.resizeCanvas.getContext('2d').drawImage(this.origSrc, 0, 0, width, height);
             this.$refs.imageTarget.src = this.resizeCanvas.toDataURL("image/png");
         },
+
         endResize(e) {
             e.preventDefault();
             document.removeEventListener('mouseup', this.endResize);
@@ -116,13 +115,11 @@ export default {
             this.eventState.container_left = rect.left + window.scrollX;
             this.eventState.container_top = rect.top + window.scrollY;
 
-            this.eventState.offset_left = parseInt(this.$refs.resizeContainer.style.left) || 0;
-            this.eventState.offset_top = parseInt(this.$refs.resizeContainer.style.top) || 0;
+            this.eventState.offset_left = this.$refs.resizeContainer.offsetLeft;
+            this.eventState.offset_top = this.$refs.resizeContainer.offsetTop;
 
             this.eventState.mouse_x = (e.clientX || e.pageX || e.changedTouches[0].clientX) + window.scrollX; // TODO
-            console.log("---");
-            console.log(this.eventState.mouse_x);
-            console.log("---");
+
             this.eventState.mouse_y = (e.clientY || e.pageY || e.changedTouches[0].clientY) + window.scrollY; // TODO
             // This is a fix for mobile safari
             // For some reason it does not allow a direct copy of the touches property
@@ -137,7 +134,6 @@ export default {
             this.eventState.evnt = e;
         }
     },
-
     mounted() {
         this.initialize();
     }
