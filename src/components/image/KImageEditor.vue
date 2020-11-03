@@ -3,7 +3,7 @@
         <div class="resize-container" ref="resizeContainer">
             <span class="resize-handle resize-handle-nw" @mousedown="startResize"></span>
             <span class="resize-handle resize-handle-ne" @mousedown="startResize"></span>
-            <img crossorigin="anonymous" class="resize-image" src="https://cdnuploads.aa.com.tr/uploads/Contents/2020/05/14/thumbs_b_c_88bedbc66bb57f0e884555e8250ae5f9.jpg?v=140708" ref="imageTarget" />
+            <img crossorigin="anonymous" class="resize-image" @mousedown="startMoving" src="https://cdnuploads.aa.com.tr/uploads/Contents/2020/05/14/thumbs_b_c_88bedbc66bb57f0e884555e8250ae5f9.jpg?v=140708" ref="imageTarget" />
             <span class="resize-handle resize-handle-sw" @mousedown="startResize"></span>
             <span class="resize-handle resize-handle-se" @mousedown="startResize"></span>
         </div>
@@ -43,6 +43,13 @@ export default {
             document.addEventListener('touchmove', this.resizing);
             document.addEventListener( 'mouseup', this.endResize);
             document.addEventListener( 'touchend', this.endResize);
+        },
+        startMoving(e){
+            e.preventDefault();
+            e.stopPropagation();
+            this.saveEventState(e);
+            document.addEventListener('mousemove', this.moving);
+            document.addEventListener( 'mouseup', this.endMoving);
         },
         resizing(e) {
             let mouse = {};
@@ -98,13 +105,30 @@ export default {
             this.resizeCanvas.getContext('2d').drawImage(this.origSrc, 0, 0, width, height);
             this.$refs.imageTarget.src = this.resizeCanvas.toDataURL("image/png");
         },
+        moving(e) {
+            let mouse = {};
+            e.preventDefault();
+            e.stopPropagation();
+            mouse.x = (e.clientX || e.pageX) + window.scrollX;
+            mouse.y = (e.clientY || e.pageY) + window.scrollY;
 
+            let left = this.eventState.offset_left + (mouse.x - this.eventState.mouse_x); // ( - this.eventState.container_left )
+            let top = this.eventState.offset_top + (mouse.y - this.eventState.mouse_y); // ( - this.eventState.container_top )
+
+            this.$refs.resizeContainer.style.top = top + "px";
+            this.$refs.resizeContainer.style.left = left + "px";
+        },
         endResize(e) {
             e.preventDefault();
             document.removeEventListener('mouseup', this.endResize);
             document.removeEventListener('touchend', this.endResize);
             document.removeEventListener('mousemove', this.resizing);
             document.removeEventListener('touchmove', this.resizing);
+        },
+        endMoving(e) {
+            e.preventDefault();
+            document.removeEventListener('mouseup', this.endMoving);
+            document.removeEventListener('mousemove', this.moving);
         },
         saveEventState(e) {
             this.eventState.container_width = parseFloat(getComputedStyle(this.$refs.resizeContainer, null).width.replace("px", ""));
