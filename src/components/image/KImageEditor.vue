@@ -59,26 +59,26 @@ export default {
             if(this.eventState.evnt.target.classList.contains('resize-handle-se')){
                 width = mouse.x - this.eventState.container_left;
                 height = mouse.y  - this.eventState.container_top;
-                left = this.$refs.resizeContainer.offsetLeft;
-                top = this.$refs.resizeContainer.offsetTop;
+                left = this.eventState.offset_left;
+                top = this.eventState.offset_top;
             } else if(this.eventState.evnt.target.classList.contains('resize-handle-sw')){
                 width = this.eventState.container_width - (mouse.x - this.eventState.container_left);
                 height = mouse.y  - this.eventState.container_top;
-                left = mouse.x;
-                top = this.$refs.resizeContainer.offsetTop;
+                left = mouse.x - this.eventState.mouse_x + this.eventState.offset_left;
+                top = this.eventState.offset_top;
             } else if(this.eventState.evnt.target.classList.contains('resize-handle-nw')){
                 width = this.eventState.container_width - (mouse.x - this.eventState.container_left);
                 height = this.eventState.container_height - (mouse.y - this.eventState.container_top);
-                left = mouse.x;
-                top = mouse.y;
+                left = mouse.x - this.eventState.mouse_x + this.eventState.offset_left;
+                top = mouse.y - this.eventState.mouse_y + this.eventState.offset_top;
                 if(this.constrain || e.shiftKey){
                     top = mouse.y - ((width / this.origSrc.width * this.origSrc.height) - height);
                 }
             } else if(this.eventState.evnt.target.classList.contains('resize-handle-ne')){
                 width = mouse.x - this.eventState.container_left;
                 height = this.eventState.container_height - (mouse.y - this.eventState.container_top);
-                left = this.eventState.container_left;
-                top = mouse.y;
+                left = this.eventState.offset_left;
+                top = mouse.y - this.eventState.mouse_y + this.eventState.offset_top;
                 if(this.constrain || e.shiftKey){
                     top = mouse.y - ((width / this.origSrc.width * this.origSrc.height) - height);
                 }
@@ -108,7 +108,6 @@ export default {
             document.removeEventListener('touchmove', this.resizing);
         },
         saveEventState(e) {
-
             this.eventState.container_width = parseFloat(getComputedStyle(this.$refs.resizeContainer, null).width.replace("px", ""));
             this.eventState.container_height = parseFloat(getComputedStyle(this.$refs.resizeContainer, null).height.replace("px", ""));
 
@@ -117,7 +116,13 @@ export default {
             this.eventState.container_left = rect.left + window.scrollX;
             this.eventState.container_top = rect.top + window.scrollY;
 
+            this.eventState.offset_left = parseInt(this.$refs.resizeContainer.style.left) || 0;
+            this.eventState.offset_top = parseInt(this.$refs.resizeContainer.style.top) || 0;
+
             this.eventState.mouse_x = (e.clientX || e.pageX || e.changedTouches[0].clientX) + window.scrollX; // TODO
+            console.log("---");
+            console.log(this.eventState.mouse_x);
+            console.log("---");
             this.eventState.mouse_y = (e.clientY || e.pageY || e.changedTouches[0].clientY) + window.scrollY; // TODO
             // This is a fix for mobile safari
             // For some reason it does not allow a direct copy of the touches property
