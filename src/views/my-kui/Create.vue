@@ -120,9 +120,10 @@
                             v-if="!showRecorder && showTrimmer"
                             class="column is-three-quarters-fullhd is-full-desktop"
                         >
+                            <!-- v-bind:reset="reset" -->
                             <k-audio-trimmer
-                                v-bind:reset="reset"
                                 v-bind:audioBlob="fileBlob"
+                                ref="audioTrimmer"
                             ></k-audio-trimmer>
                         </div>
                         <!-- Close Trimmer -->
@@ -141,6 +142,21 @@
                     </div>
                 </div>
             </section>
+            <section>
+                <div class="container">
+                    <div class="columns is-multiline is-desktop">
+                        <!-- Intro / Buttons -->
+                        <div class="column is-full-desktop">
+                            <h3 class="title is-3">4. Send To Server</h3>
+                            <b-button class="mb-3" @click="sendToServer">
+                                Send
+                            </b-button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </section>
 
         </div>
     </div>
@@ -152,6 +168,8 @@ import DesignCard from "../../components/cards/DesignCard";
 import KAudioRecorder from "../../components/audio/KAudioRecorder";
 import KAudioTrimmer from "../../components/audio/KAudioTrimmer";
 import KImageEditor from "../../components/image/KImageEditor"
+import backendAPI from "@/helpers/backendAPI";
+import themes from '@/helpers/themes.json'
 
 export default {
     name: "Create",
@@ -213,6 +231,11 @@ export default {
         toggleTrimmer() {
             this.showTrimmer = !this.showTrimmer;
             this.showRecorder = false;
+        },
+        sendToServer() {
+            const theme = {...themes['default'], ...themes['Basic']};
+            const caption = 'Hello World';
+            backendAPI(this.fileBlob, theme, caption, this.$refs.audioTrimmer.region);
         }
     },
 
