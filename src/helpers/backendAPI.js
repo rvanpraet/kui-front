@@ -6,7 +6,7 @@ function backendAPI(file, theme, caption, selection){
         formData.append("start", selection.start);
         formData.append("end", selection.end);
     }
-    formData.append("theme", theme);
+    formData.append("theme", JSON.stringify(theme));
     formData.append("caption", caption);
 
     const url = "http://localhost:3000/upload/";
