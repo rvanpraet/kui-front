@@ -1,10 +1,14 @@
+
+function _audioTimeToSec(audioTime){
+    return parseInt(audioTime.split(":")[0]) * 60 + parseInt(audioTime.split(":")[1])
+}
 function backendAPI(file, theme, caption, selection){
     var formData = new FormData();
 
     formData.append("audio", file);
     if (selection.start || selection.end) {
-        formData.append("start", selection.start);
-        formData.append("end", selection.end);
+        formData.append("start", _audioTimeToSec(selection.start));
+        formData.append("end", _audioTimeToSec(selection.end));
     }
     formData.append("theme", JSON.stringify(theme));
     formData.append("caption", caption);
