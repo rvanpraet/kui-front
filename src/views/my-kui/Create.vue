@@ -155,7 +155,23 @@
 
                     </div>
                 </div>
+            </section>
+            <section>
+                <div class="container">
+                    <div class="columns is-multiline is-desktop">
+                        <!-- Intro / Buttons -->
+                        <div class="column is-full-desktop">
+                            <h3 class="title is-3">5. Job Status</h3>
+                            <k-job-status
+                                v-for="jobId in jobIds"
+                                :key="jobId"
+                                :jobId="jobId"
+                            >
+                            </k-job-status>
+                        </div>
 
+                    </div>
+                </div>
             </section>
 
         </div>
@@ -168,6 +184,7 @@ import DesignCard from "../../components/cards/DesignCard";
 import KAudioRecorder from "../../components/audio/KAudioRecorder";
 import KAudioTrimmer from "../../components/audio/KAudioTrimmer";
 import KImageEditor from "../../components/image/KImageEditor"
+import KJobStatus from "../../components/job-status/KJobStatus"
 import backendAPI from "@/helpers/backendAPI";
 import themes from '@/helpers/themes.json'
 
@@ -178,7 +195,8 @@ export default {
         designCard: DesignCard,
         kAudioRecorder: KAudioRecorder,
         kAudioTrimmer: KAudioTrimmer,
-        kImageEditor: KImageEditor
+        kImageEditor: KImageEditor,
+        kJobStatus: KJobStatus,
     },
 
     data() {
@@ -186,7 +204,8 @@ export default {
             designs: [],
             fileBlob: null,
             showRecorder: false,
-            showTrimmer: false
+            showTrimmer: false,
+            jobIds: []
         };
     },
 
@@ -235,7 +254,12 @@ export default {
         sendToServer() {
             const theme = {...themes['default'], ...themes['Basic']};
             const caption = 'Hello World';
-            backendAPI(this.fileBlob, theme, caption, this.$refs.audioTrimmer.region);
+            backendAPI.uploadJob(this.fileBlob, theme, caption, this.$refs.audioTrimmer.region, function(err, jobId){
+                if (err) {
+                    throw err;
+                }
+                this.jobIds.push(jobId);
+            }.bind(this));
         }
     },
 

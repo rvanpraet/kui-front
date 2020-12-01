@@ -34,6 +34,7 @@ export function makeServer({ environment = "development" } = {}) {
         routes() {
             this.passthrough("localhost:8080/public");
             this.passthrough("http://localhost:3000/upload/");
+            this.passthrough("http://localhost:3000/upload/status/");
             this.passthrough();
 
             // this.namespace = "api";

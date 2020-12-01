@@ -2,8 +2,10 @@
 function _audioTimeToSec(audioTime){
     return parseInt(audioTime.split(":")[0]) * 60 + parseInt(audioTime.split(":")[1])
 }
-function backendAPI(file, theme, caption, selection){
-    var formData = new FormData();
+function uploadJob(file, theme, caption, selection, cb){
+    const url = "http://localhost:3000/upload/";
+
+    const formData = new FormData();
 
     formData.append("audio", file);
     if (selection.start || selection.end) {
@@ -13,7 +15,6 @@ function backendAPI(file, theme, caption, selection){
     formData.append("theme", JSON.stringify(theme));
     formData.append("caption", caption);
 
-    const url = "http://localhost:3000/upload/";
     fetch(url, {
       method: 'POST',
       body: formData
@@ -21,12 +22,31 @@ function backendAPI(file, theme, caption, selection){
         if (response.status >= 200 && response.status < 300) {
             return response.json()
         }
-        throw  response.text()
+        cb(response.text(), null)
     }).catch(
-        error => console.error('Error in Request: ', url , ' -> ' , error)
+        error => cb(error, null)
     ).then(
-        response => console.log('Success:', response)
+        response => cb(null, response.id)
     );
 }
 
-export default backendAPI
+function jobStatus(id, cb){
+    const url = "http://localhost:3000/upload/status/?id=" + id;
+    fetch(url, {
+      method: 'GET',
+    }).then(function(response){
+        if (response.status >= 200 && response.status < 300) {
+            return response.json()
+        }
+        cb(response.text(), null)
+    }).catch(
+        error => cb(error, null)
+    ).then(
+        response => cb(null, response)
+    );
+}
+
+export default {
+    uploadJob,
+    jobStatus,
+}
