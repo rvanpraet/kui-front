@@ -1,12 +1,30 @@
 <template>
     <div id="app">
         <div id="nav">
-            <router-link to="/">Home</router-link> |
-            <router-link to="/about">About</router-link> |
-            <router-link to="/my-kui/">Sign In</router-link>
+            <b-navbar>
+                <template slot="start">
+                    <b-navbar-item>
+                        <router-link to="/">Home</router-link>
+                    </b-navbar-item>
+                    <b-navbar-dropdown label="Info">
+                        <b-navbar-item href="#">
+                            <router-link to="/about">About</router-link>
+                        </b-navbar-item>
+                    </b-navbar-dropdown>
+                </template>
+                <template slot="end">
+                    <b-navbar-item tag="div">
+                        <div class="buttons">
+                            <router-link class="button is-primary" to="/register"><strong>Sign up</strong></router-link>
+                            <router-link class="button is-light" to="/my-kui/">Sign In</router-link>
+                        </div>
+                    </b-navbar-item>
+                </template>
+            </b-navbar>
         </div>
         <router-view />
     </div>
+
 </template>
 
 <style>
